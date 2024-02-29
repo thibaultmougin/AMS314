@@ -268,15 +268,15 @@ double quality_rho(Mesh *msh, int iTri){
   verts[1]= msh->Ver[msh->Tri[iTri].Ver[1]];
   verts[2]= msh->Ver[msh->Tri[iTri].Ver[2]];
 
-  double alpha_2= 1./0.0008227;
+  double alpha_2= 1./3.4661;
 
   double x_1 = verts[0].Crd[0], y_1= verts[0].Crd[1];
   double x_2 = verts[1].Crd[0], y_2= verts[1].Crd[1];
   double x_3 = verts[2].Crd[0], y_3= verts[2].Crd[1];
 
-  double l_1= (x_2-x_1)*(x_2-x_1) + (y_2-y_1)*(y_2-y_1);
-  double l_2= (x_3-x_1)*(x_3-x_1) + (y_3-y_1)*(y_3-y_1);
-  double l_3= (x_3-x_2)*(x_3-x_2) + (y_3-y_2)*(y_3-y_2);
+  double l_1= sqrt((x_2-x_1)*(x_2-x_1) + (y_2-y_1)*(y_2-y_1));
+  double l_2= sqrt((x_3-x_1)*(x_3-x_1) + (y_3-y_1)*(y_3-y_1));
+  double l_3= sqrt((x_3-x_2)*(x_3-x_2) + (y_3-y_2)*(y_3-y_2));
 
   double res = l_2>=l_1 ? l_2 : l_1;
 
@@ -383,6 +383,9 @@ int msh_neighborsQ2(Mesh *msh)
           jp2 = msh->Tri[jTri].Ver[tri2edg[jEdg][1]];
           
           /* compare the 4 points */
+          if (((jp1==ip1) && (jp2==ip2))||((jp1==ip2) && (jp2==ip1))){
+            return jTri;
+          }
         }
       }
       

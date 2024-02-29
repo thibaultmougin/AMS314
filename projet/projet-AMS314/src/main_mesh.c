@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
   
   
   for (iTri=1; iTri<=msh->NbrTri; iTri++) {
-  	 Qua[iTri] = quality_area(msh,iTri);
+  	 Qua[iTri] = quality_rho(msh,iTri);
      //printf("%f",Qua[iTri]);
   } 
   
@@ -61,7 +61,6 @@ int main(int argc, char *argv[])
   } 
   
   msh_write2dfield_Triangles("quality.solb", msh->NbrTri, Qua);
-  printf("OK quality");
   msh_write2dmetric("metric.solb", msh->NbrVer, Met);
   	
   	
