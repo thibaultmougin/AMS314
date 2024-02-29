@@ -114,6 +114,9 @@ int    msh_neighbors(Mesh *msh);           /* build TriVois with a hash table   
 int    msh_neighborsQ2(Mesh *msh);         /* build TriVois with the naive quadratic approach             */
   
 
+double quality_area(Mesh *msh, int iTri);
+double quality_rho(Mesh *msh, int iTri);
+
 /* a provided simple hash table data structure */
 
 typedef struct mesh_hash_table

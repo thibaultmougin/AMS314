@@ -232,7 +232,64 @@ int compar_triangle(const void *a, const void *b)
   return ( vb->icrit - va->icrit );
 }
 
+double quality_area(Mesh *msh, int iTri){
+  
+  Vertex verts[3];
 
+  verts[0]= msh->Ver[msh->Tri[iTri].Ver[0]];
+  verts[1]= msh->Ver[msh->Tri[iTri].Ver[1]];
+  verts[2]= msh->Ver[msh->Tri[iTri].Ver[2]];
+
+  double alpha_1= 1./(4*sqrt(3));
+
+  double res = 0;
+
+  double x_1 = verts[0].Crd[0], y_1= verts[0].Crd[1];
+  double x_2 = verts[1].Crd[0], y_2= verts[1].Crd[1];
+  double x_3 = verts[2].Crd[0], y_3= verts[2].Crd[1];
+
+  res += (x_2-x_1)*(x_2-x_1) + (y_2-y_1)*(y_2-y_1);
+  res += (x_3-x_1)*(x_3-x_1) + (y_3-y_1)*(y_3-y_1);
+  res += (x_3-x_2)*(x_3-x_2) + (y_3-y_2)*(y_3-y_2);
+
+  double area =(x_1*(y_2-y_3)+x_2*(y_3-y_1)+x_3*(y_1-y_2))/2;
+
+  area = (area >= 0) ? area : -area;
+
+  return res *alpha_1/area;
+}
+
+
+double quality_rho(Mesh *msh, int iTri){
+  
+  Vertex verts[3];
+
+  verts[0]= msh->Ver[msh->Tri[iTri].Ver[0]];
+  verts[1]= msh->Ver[msh->Tri[iTri].Ver[1]];
+  verts[2]= msh->Ver[msh->Tri[iTri].Ver[2]];
+
+  double alpha_2= 1./0.0008227;
+
+  double x_1 = verts[0].Crd[0], y_1= verts[0].Crd[1];
+  double x_2 = verts[1].Crd[0], y_2= verts[1].Crd[1];
+  double x_3 = verts[2].Crd[0], y_3= verts[2].Crd[1];
+
+  double l_1= (x_2-x_1)*(x_2-x_1) + (y_2-y_1)*(y_2-y_1);
+  double l_2= (x_3-x_1)*(x_3-x_1) + (y_3-y_1)*(y_3-y_1);
+  double l_3= (x_3-x_2)*(x_3-x_2) + (y_3-y_2)*(y_3-y_2);
+
+  double res = l_2>=l_1 ? l_2 : l_1;
+
+  res = l_3>=res ? l_3 : res;
+
+  double area =(x_1*(y_2-y_3)+x_2*(y_3-y_1)+x_3*(y_1-y_2))/2;
+
+  area = (area >= 0) ? area : -area;
+
+  double radius = 2*area/(l_1+l_2+l_3);
+
+  return res *alpha_2/radius;
+}
 
 int msh_reorder(Mesh *msh)
 {
