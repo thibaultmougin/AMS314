@@ -404,12 +404,8 @@ int msh_neighbors(Mesh *msh)
   int iTri, iEdg, ip1, ip2, found;
   
   if ( ! msh ) return 0;
-  //printf("OK0");
-  //fflush(stdout);
-  HashTable* hsh_tab = hash_init(2*msh->NbrVer,3*msh->NbrTri);
 
-  //printf("OK1");
-  //fflush(stdout);
+  HashTable* hsh_tab = hash_init(2*msh->NbrVer,3*msh->NbrTri);
 
   for (iTri=1; iTri<=msh->NbrTri; iTri++) {
     for (iEdg=0; iEdg<3; iEdg++) {
@@ -423,7 +419,6 @@ int msh_neighbors(Mesh *msh)
         hash_add(hsh_tab,ip1,ip2,iTri);
       }
       else{
-        
 
         int Tri1 = hsh_tab->LstObj[found][2];
         hsh_tab->LstObj[found][3]=iTri;
@@ -432,16 +427,15 @@ int msh_neighbors(Mesh *msh)
         msh->Tri[Tri1].Voi[iEdg]=Tri2;
         msh->Tri[Tri2].Voi[iEdg]=Tri1;
       }
-      
+      /*printf("%d, %d, %d, %d\n",iTri,ip1,ip2,msh->Tri[iTri].Voi[iEdg]);
+      fflush(stdout);*/
     }
   }
-
-
-
+/*
   for (int i =0;i<hsh_tab->NbrObj;i++){
     printf("%d, %d, %d, %d, %d \n", hsh_tab->LstObj[i][0],hsh_tab->LstObj[i][1],hsh_tab->LstObj[i][2],hsh_tab->LstObj[i][3],hsh_tab->LstObj[i][4]);
     fflush(stdout);
-  }
+  }*/
   
   return 1;
 }   
@@ -517,7 +511,6 @@ int hash_add(HashTable *hsh, int ip1, int ip2, int iTri)
       return 0;
     }
     if((hsh->LstObj[current][0]==ip2)&&(hsh->LstObj[current][1]==ip1)){
-      printf("pitier");
       hsh->LstObj[current][3]=iTri; 
       return 0;
     }
