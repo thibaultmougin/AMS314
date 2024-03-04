@@ -415,32 +415,32 @@ int msh_neighbors(Mesh *msh)
     for (iEdg=0; iEdg<3; iEdg++) {
       ip1 = msh->Tri[iTri].Ver[tri2edg[iEdg][0]];
       ip2 = msh->Tri[iTri].Ver[tri2edg[iEdg][1]];
-      //printf("OK2");
-      //fflush(stdout);
 
       found = hash_find(hsh_tab, ip1,ip2);
 
       if (found==0){
-        //printf("OK3");
-        //fflush(stdout);
 
         hash_add(hsh_tab,ip1,ip2,iTri);
       }
       else{
-        //printf("OK4");
-        //fflush(stdout); 
+        
 
         int Tri1 = hsh_tab->LstObj[found][2];
+        hsh_tab->LstObj[found][3]=iTri;
         int Tri2 = hsh_tab->LstObj[found][3];
 
         msh->Tri[Tri1].Voi[iEdg]=Tri2;
         msh->Tri[Tri2].Voi[iEdg]=Tri1;
       }
-      /* compute the key : ip1+ip2   */
-      /* do we have objects as that key   hash_find () */
-      /*  if yes ===> look among objects and potentially update Voi */
-      /*  if no  ===> add to hash table.  hash_add()   */
+      
     }
+  }
+
+
+
+  for (int i =0;i<hsh_tab->NbrObj;i++){
+    printf("%d, %d, %d, %d, %d \n", hsh_tab->LstObj[i][0],hsh_tab->LstObj[i][1],hsh_tab->LstObj[i][2],hsh_tab->LstObj[i][3],hsh_tab->LstObj[i][4]);
+    fflush(stdout);
   }
   
   return 1;
@@ -467,17 +467,17 @@ HashTable * hash_init(int SizHead, int NbrMaxObj)
 int hash_find(HashTable *hsh, int ip1, int ip2)
 {
   
-  int keyIndex = hsh->Head[(ip1+ip2)%(hsh->SizHead)];
+  int current = hsh->Head[(ip1+ip2)%(hsh->SizHead)];
 
-  while(hsh->LstObj[keyIndex][4]!=0){
+  while(1){
     
-    if(((hsh->LstObj[keyIndex][0]==ip1)&&(hsh->LstObj[keyIndex][0]==ip2))||((hsh->LstObj[keyIndex][0]==ip2)&&(hsh->LstObj[keyIndex][0]==ip1)))
-      return keyIndex;
+    if(((hsh->LstObj[current][0]==ip1)&&(hsh->LstObj[current][1]==ip2))||((hsh->LstObj[current][0]==ip2)&&(hsh->LstObj[current][1]==ip1)))
+      return current;
 
-    keyIndex = hsh->LstObj[keyIndex][4];
-
-    if (hsh->LstObj[keyIndex][4]==0)
+    if (hsh->LstObj[current][4]==0)
       return 0;
+
+    current = hsh->LstObj[current][4];
 
   }
 	
@@ -492,24 +492,36 @@ int hash_add(HashTable *hsh, int ip1, int ip2, int iTri)
 
   hsh->NbrObj++;
 
-  int keyIndex = hsh->Head[(ip1+ip2)%(hsh->SizHead)];
+  int current = hsh->Head[(ip1+ip2)%(hsh->SizHead)];
+  
+  if(current==0){
+    hsh->Head[(ip1+ip2)%(hsh->SizHead)]=iObj;
+    hsh->LstObj[iObj][0]=ip1;
+    hsh->LstObj[iObj][1]=ip2;
+    hsh->LstObj[iObj][2]=iTri;
+    hsh->LstObj[iObj][3]=0; 
+    hsh->LstObj[iObj][4]=0;
+    return 0;
+  }
 
-  while(hsh->LstObj[keyIndex][4]!=0){
 
-    keyIndex = hsh->LstObj[keyIndex][4];
+  while(1){
 
-    if (hsh->LstObj[keyIndex][4]==0){
-      hsh->LstObj[keyIndex][4]=iObj;
+    if (hsh->LstObj[current][4]==0){
+      hsh->LstObj[current][4]=iObj;
       hsh->LstObj[iObj][0]=ip1;
       hsh->LstObj[iObj][1]=ip2;
       hsh->LstObj[iObj][2]=iTri;
       hsh->LstObj[iObj][3]=0; 
       hsh->LstObj[iObj][4]=0;
-    }
-    else if((hsh->LstObj[keyIndex][0]==ip2)&&(hsh->LstObj[keyIndex][0]==ip1)){
-      hsh->LstObj[iObj][3]=iTri; 
       return 0;
     }
+    if((hsh->LstObj[current][0]==ip2)&&(hsh->LstObj[current][1]==ip1)){
+      printf("pitier");
+      hsh->LstObj[current][3]=iTri; 
+      return 0;
+    }
+    current = hsh->LstObj[current][4];
   }
 
 	
