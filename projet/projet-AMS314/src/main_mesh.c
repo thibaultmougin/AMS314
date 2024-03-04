@@ -26,15 +26,14 @@ int main(int argc, char *argv[])
   msh_reorder(msh);
   ti =  GetWallClock();  
   printf("  time to re-order the mesh  %lg (s) \n",ti-to);
-   
   /* create neigbhors Q2 version */
   to =  GetWallClock();
   msh_neighborsQ2(msh);
   ti =  GetWallClock();
   printf("  time q2 neigh.        %lg (s) \n",ti-to);
-  
   /* create neigbhors with hash table */
   to =  GetWallClock();
+
   msh_neighbors(msh);
   ti =  GetWallClock();
   printf("  time hash tab neigh.  %lg (s) \n",ti-to);

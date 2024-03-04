@@ -384,7 +384,9 @@ int msh_neighborsQ2(Mesh *msh)
           
           /* compare the 4 points */
           if (((jp1==ip1) && (jp2==ip2))||((jp1==ip2) && (jp2==ip1))){
-            return jTri;
+            (msh->Tri[iTri]).Voi[iEdg]=jTri;
+            (msh->Tri[jTri]).Voi[jEdg]=iTri;
+            break;
           }
         }
       }
@@ -399,17 +401,41 @@ int msh_neighborsQ2(Mesh *msh)
 
 int msh_neighbors(Mesh *msh)
 {
-  int iTri, iEdg, ip1, ip2;
+  int iTri, iEdg, ip1, ip2, found;
   
   if ( ! msh ) return 0;
-  
-  /* initialize HashTable and set the hash table */
-  
+  //printf("OK0");
+  //fflush(stdout);
+  HashTable* hsh_tab = hash_init(2*msh->NbrVer,3*msh->NbrTri);
+
+  //printf("OK1");
+  //fflush(stdout);
+
   for (iTri=1; iTri<=msh->NbrTri; iTri++) {
     for (iEdg=0; iEdg<3; iEdg++) {
       ip1 = msh->Tri[iTri].Ver[tri2edg[iEdg][0]];
       ip2 = msh->Tri[iTri].Ver[tri2edg[iEdg][1]];
+      //printf("OK2");
+      //fflush(stdout);
 
+      found = hash_find(hsh_tab, ip1,ip2);
+
+      if (found==0){
+        //printf("OK3");
+        //fflush(stdout);
+
+        hash_add(hsh_tab,ip1,ip2,iTri);
+      }
+      else{
+        //printf("OK4");
+        //fflush(stdout); 
+
+        int Tri1 = hsh_tab->LstObj[found][2];
+        int Tri2 = hsh_tab->LstObj[found][3];
+
+        msh->Tri[Tri1].Voi[iEdg]=Tri2;
+        msh->Tri[Tri2].Voi[iEdg]=Tri1;
+      }
       /* compute the key : ip1+ip2   */
       /* do we have objects as that key   hash_find () */
       /*  if yes ===> look among objects and potentially update Voi */
@@ -426,17 +452,14 @@ int msh_neighbors(Mesh *msh)
 
 HashTable * hash_init(int SizHead, int NbrMaxObj)
 {
-	HashTable *hsh = NULL;
+	HashTable *hsh = malloc(sizeof(HashTable));
 	
-	// to be implemented
+  hsh->Head = calloc(SizHead , sizeof(int));
+  hsh->LstObj = calloc(NbrMaxObj,sizeof(int5));
+  hsh->NbrObj=0;
+  hsh->NbrMaxObj=NbrMaxObj;
+  hsh->SizHead=SizHead;
 
-	// allocate hash table
-	
-	// initialize hash table
-	
-	// allocate Head, LstObj
-	
-	
   return hsh;
 }
 
@@ -444,9 +467,19 @@ HashTable * hash_init(int SizHead, int NbrMaxObj)
 int hash_find(HashTable *hsh, int ip1, int ip2)
 {
   
-	// to be implemented
-	
-	// return the id found (in LstObj ), if 0 the object is not in the list
+  int keyIndex = hsh->Head[(ip1+ip2)%(hsh->SizHead)];
+
+  while(hsh->LstObj[keyIndex][4]!=0){
+    
+    if(((hsh->LstObj[keyIndex][0]==ip1)&&(hsh->LstObj[keyIndex][0]==ip2))||((hsh->LstObj[keyIndex][0]==ip2)&&(hsh->LstObj[keyIndex][0]==ip1)))
+      return keyIndex;
+
+    keyIndex = hsh->LstObj[keyIndex][4];
+
+    if (hsh->LstObj[keyIndex][4]==0)
+      return 0;
+
+  }
 	
 	return 0;
 }
@@ -455,9 +488,30 @@ int hash_find(HashTable *hsh, int ip1, int ip2)
 int hash_add(HashTable *hsh, int ip1, int ip2, int iTri)
 {
 
-  // to be implemented
-	
-  // ===> add this entry in the hash tab 
+  int iObj = hsh->NbrObj;
+
+  hsh->NbrObj++;
+
+  int keyIndex = hsh->Head[(ip1+ip2)%(hsh->SizHead)];
+
+  while(hsh->LstObj[keyIndex][4]!=0){
+
+    keyIndex = hsh->LstObj[keyIndex][4];
+
+    if (hsh->LstObj[keyIndex][4]==0){
+      hsh->LstObj[keyIndex][4]=iObj;
+      hsh->LstObj[iObj][0]=ip1;
+      hsh->LstObj[iObj][1]=ip2;
+      hsh->LstObj[iObj][2]=iTri;
+      hsh->LstObj[iObj][3]=0; 
+      hsh->LstObj[iObj][4]=0;
+    }
+    else if((hsh->LstObj[keyIndex][0]==ip2)&&(hsh->LstObj[keyIndex][0]==ip1)){
+      hsh->LstObj[iObj][3]=iTri; 
+      return 0;
+    }
+  }
+
 	
 	return 0;
 }
