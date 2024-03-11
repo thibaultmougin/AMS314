@@ -437,9 +437,51 @@ int msh_neighbors(Mesh *msh)
     fflush(stdout);
   }*/
   
-  return 1;
+  return hsh_tab->NbrObj;
+
 }   
 
+
+int nb_edges_boundary(Mesh *msh)
+{
+  int iTri, iEdg, ip1, ip2, found;
+  int n =0;
+  if ( ! msh ) return 0;
+
+  HashTable* hsh_tab = hash_init(2*msh->NbrVer,3*msh->NbrTri);
+
+  for (iTri=1; iTri<=msh->NbrTri; iTri++) {
+    for (iEdg=0; iEdg<3; iEdg++) {
+      ip1 = msh->Tri[iTri].Ver[tri2edg[iEdg][0]];
+      ip2 = msh->Tri[iTri].Ver[tri2edg[iEdg][1]];
+
+      found = hash_find(hsh_tab, ip1,ip2);
+
+      if (found==0){
+
+        hash_add(hsh_tab,ip1,ip2,iTri);
+      }
+      else{
+
+        int Tri1 = hsh_tab->LstObj[found][2];
+        hsh_tab->LstObj[found][3]=iTri;
+        int Tri2 = hsh_tab->LstObj[found][3];
+
+        msh->Tri[Tri1].Voi[iEdg]=Tri2;
+        msh->Tri[Tri2].Voi[iEdg]=Tri1;
+      }
+      
+    }
+  }
+  for (int i=0;i<hsh_tab->NbrObj;i++){
+    if (hsh_tab->LstObj[i][3]==0){
+      n++;
+    }
+  }
+  
+  return n;
+
+}   
 
 
 

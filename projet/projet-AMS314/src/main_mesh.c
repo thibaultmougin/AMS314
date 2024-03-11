@@ -1,6 +1,5 @@
 #include <mesh.h>
 
-
 int main(int argc, char *argv[])
 { 
   double to,ti;
@@ -34,10 +33,13 @@ int main(int argc, char *argv[])
   /* create neigbhors with hash table */
   to =  GetWallClock();
 
-  msh_neighbors(msh);
+  int nb_aretes = msh_neighbors(msh);
   ti =  GetWallClock();
   printf("  time hash tab neigh.  %lg (s) \n",ti-to);
   
+  printf("  nb d'arêtes : %d \n",msh_neighbors(msh));
+  printf("  nb d'arêtes frontières : %d \n",nb_edges_boundary(msh));
+
   /* write reordered mesh */
   to =  GetWallClock();
   msh_write(msh,"output.meshb");
@@ -47,7 +49,7 @@ int main(int argc, char *argv[])
   double  *Qua = (double  *)malloc(sizeof(double ) * (msh->NbrTri+1));
   double3 *Met = (double3 *)malloc(sizeof(double3) * (msh->NbrVer+1));
   
-  
+
   for (iTri=1; iTri<=msh->NbrTri; iTri++) {
   	 Qua[iTri] = quality_rho(msh,iTri);
      //printf("%f",Qua[iTri]);
@@ -58,7 +60,7 @@ int main(int argc, char *argv[])
   	 Met[iVer][1] = 0.;
   	 Met[iVer][2] = 1.;
   } 
-  
+
   msh_write2dfield_Triangles("quality.solb", msh->NbrTri, Qua);
   msh_write2dmetric("metric.solb", msh->NbrVer, Met);
   	
@@ -66,6 +68,40 @@ int main(int argc, char *argv[])
   return 0;
 }
 
+
+
+/*
+
+make: 'mesh' is up to date.
+ File data/carre_4h.mesh opened Dimension 2 Version 1 
+  Vertices         2625 
+  Triangles        5084 
+  time to read the mesh 0.00566983 (s) 
+  time to re-order the mesh  3.69549e-05 (s) 
+  time q2 neigh.        0.280322 (s) 
+  time hash tab neigh.  0.000411987 (s) 
+ File data/carre_2h.mesh opened Dimension 2 Version 2 
+  Vertices        10663 
+  Triangles       20938 
+  time to read the mesh 0.021153 (s) 
+  time to re-order the mesh  0.000194073 (s) 
+  time q2 neigh.        4.78475 (s) 
+  time hash tab neigh.  0.00282598 (s) 
+ File data/carre_h.mesh opened Dimension 2 Version 2 
+  Vertices        43758 
+  Triangles       86742 
+  time to read the mesh 0.0832739 (s) 
+  time to re-order the mesh  0.000831842 (s) 
+  time q2 neigh.        80.4208 (s) 
+  time hash tab neigh.  0.00966191 (s) 
+ File data/carre_05h.mesh opened Dimension 2 Version 2 
+  Vertices       178746 
+  Triangles      355946 
+  time to read the mesh 0.29301 (s) 
+  time to re-order the mesh  0.00235009 (s) 
+  time q2 neigh.        1746.55 (s) 
+  time hash tab neigh.  0.0568562 (s) 
+*/
 
 
 

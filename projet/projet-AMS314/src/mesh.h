@@ -112,7 +112,8 @@ int    msh_reorder(Mesh *msh);             /* perform a mesh using morton curve/
 int    msh_smooth(Mesh *msh, int nbrStep); /* a simple mesh smoohting algorithm                           */
 int    msh_neighbors(Mesh *msh);           /* build TriVois with a hash table                             */
 int    msh_neighborsQ2(Mesh *msh);         /* build TriVois with the naive quadratic approach             */
-  
+int nb_edges_boundary(Mesh *msh);
+
 
 double quality_area(Mesh *msh, int iTri);
 double quality_rho(Mesh *msh, int iTri);
