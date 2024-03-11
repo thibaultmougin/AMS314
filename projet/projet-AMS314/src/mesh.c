@@ -18,7 +18,8 @@ Mesh * msh_init()
   msh->Ver = NULL;
   msh->Tri = NULL;  
   msh->Efr = NULL;  
-  msh->Edg = NULL;  
+  msh->Edg = NULL; 
+  msh->Hsh = NULL; 
   
   msh->bb[0] = 0.0; /* xmin  */
   msh->bb[1] = 0.0; /* xmax  */
@@ -232,6 +233,18 @@ int compar_triangle(const void *a, const void *b)
   return ( vb->icrit - va->icrit );
 }
 
+double area(Vertex P1, Vertex P2, Vertex P3){
+  
+
+  double x_1 = P1.Crd[0], y_1= P1.Crd[1];
+  double x_2 = P2.Crd[0], y_2= P2.Crd[1];
+  double x_3 = P3.Crd[0], y_3= P3.Crd[1];
+
+  double aire =(x_1*(y_2-y_3)+x_2*(y_3-y_1)+x_3*(y_1-y_2))/2;
+
+  return aire;
+}
+
 double quality_area(Mesh *msh, int iTri){
   
   Vertex verts[3];
@@ -253,8 +266,6 @@ double quality_area(Mesh *msh, int iTri){
   res += (x_3-x_2)*(x_3-x_2) + (y_3-y_2)*(y_3-y_2);
 
   double area =(x_1*(y_2-y_3)+x_2*(y_3-y_1)+x_3*(y_1-y_2))/2;
-
-  area = (area >= 0) ? area : -area;
 
   return res *alpha_1/area;
 }
@@ -359,7 +370,71 @@ int msh_write(Mesh *msh, char *file)
 }
 
 
+int localiser(Mesh *msh, Vertex P){
+  int iTri=1;
+  double b1,b2,b3;
+  Vertex P1,P2,P3;
 
+
+  for(int i=0;i<msh->NbrTri;i++){
+
+    if(iTri==0)
+      return 0;
+
+    P1= msh->Ver[msh->Tri[iTri].Ver[0]];
+    P2= msh->Ver[msh->Tri[iTri].Ver[1]];
+    P3= msh->Ver[msh->Tri[iTri].Ver[2]];
+
+    b1 = area(P, P2, P3);
+    b2 = area(P1, P, P3);
+    b3 = area(P1, P2, P);
+    printf("%d : %f, %f, %f \n",iTri,b1,b2,b3);
+    if((b1>0)&&(b2>0)&&(b3>0)){
+      return iTri;
+    }
+
+    if(b1<0){
+
+      int hsh_index = hash_find(msh->Hsh,msh->Tri[iTri].Ver[1],msh->Tri[iTri].Ver[2]);
+
+      if (msh->Hsh->LstObj[hsh_index][2]==iTri){
+        iTri = msh->Hsh->LstObj[hsh_index][3];
+      }
+      else{
+        iTri = msh->Hsh->LstObj[hsh_index][2];
+      }
+
+    }
+    else if (b2<0){
+      
+      int hsh_index = hash_find(msh->Hsh,msh->Tri[iTri].Ver[0],msh->Tri[iTri].Ver[2]);
+
+      if (msh->Hsh->LstObj[hsh_index][2]==iTri){
+        iTri = msh->Hsh->LstObj[hsh_index][3];
+      }
+      else{
+        iTri = msh->Hsh->LstObj[hsh_index][2];
+      }
+
+    }
+    else if (b3<0){
+      
+      int hsh_index = hash_find(msh->Hsh,msh->Tri[iTri].Ver[0],msh->Tri[iTri].Ver[1]);
+
+      if (msh->Hsh->LstObj[hsh_index][2]==iTri){
+        iTri = msh->Hsh->LstObj[hsh_index][3];
+      }
+      else{
+        iTri = msh->Hsh->LstObj[hsh_index][2];
+      }
+
+    }
+
+  }
+
+  return 0;
+
+}
 
 
 int msh_neighborsQ2(Mesh *msh)
@@ -427,8 +502,6 @@ int msh_neighbors(Mesh *msh)
         msh->Tri[Tri1].Voi[iEdg]=Tri2;
         msh->Tri[Tri2].Voi[iEdg]=Tri1;
       }
-      /*printf("%d, %d, %d, %d\n",iTri,ip1,ip2,msh->Tri[iTri].Voi[iEdg]);
-      fflush(stdout);*/
     }
   }
 /*

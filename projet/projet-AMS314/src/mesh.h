@@ -141,6 +141,8 @@ HashTable * hash_init(int SizHead, int NbrMaxObj);          /* alloc and set hta
 int hash_find(HashTable *hsh, int ip1, int ip2);            /* return the id found (in LstObj ), if 0 the object is not in the list */
 int hash_add (HashTable *hsh, int ip1, int ip2, int iTri);  /* ==> add this entry in the hash tab */
 
+int localiser(Mesh *msh,Vertex P);
+double area(Vertex P1, Vertex P2, Vertex P3);
 
 
 /* Fonction used for adaptation */

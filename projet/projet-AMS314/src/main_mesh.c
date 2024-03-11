@@ -39,6 +39,13 @@ int main(int argc, char *argv[])
   
   printf("  nb d'arêtes : %d \n",nb_aretes);
   printf("  nb d'arêtes frontières : %d \n",nb_edges_boundary(msh));
+  fflush(stdout);
+
+  Vertex P;
+  P.Crd[0]=0.1;
+  P.Crd[1]=0.95;
+
+  printf("  test local : %d \n", localiser(msh,P));
 
   /* write reordered mesh */
   to =  GetWallClock();
