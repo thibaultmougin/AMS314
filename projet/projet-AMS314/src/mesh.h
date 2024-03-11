@@ -80,6 +80,21 @@ typedef struct mesh_triangle
 } Triangle;
 
 
+typedef struct mesh_hash_table
+{
+  int  SizHead;   /* Maxmimum entries, the key is in [0,SizHead-1]*/
+  int  NbrObj;    /* Number of object in the hash tables */
+  int  NbrMaxObj; /* Maximum of object that can be store in the hash tab */ 
+  int  *Head ;    /* Head[key%(SizHead)] = link to the first object having this key  in the LstObj list */
+  int5 *LstObj;   /* List of objects in the Hash Tab */
+  
+  /* LstObj[id][0:1] = ip1-ip2,     the 2 points defining the edge  */
+  /* LstObj[id][2:3] = iTri1,iTri2, the two neighboring triangles having ip1-ip2 as points */
+  /* LstObj[id][4]   = idnxt,       the link to the next element in collision, if = 0 last element of the list */
+  
+} HashTable;
+
+
 typedef struct t_mesh
 {
   int Dim;
@@ -89,7 +104,7 @@ typedef struct t_mesh
   Triangle    *Tri;   /* list of triangles */
   Edge        *Efr;   /* list of boundary edges */
   Edge        *Edg;   /* list of all the mesh egdes */
-  
+  HashTable   *Hsh;
   /* bounding box */
   double bb[4];
   
@@ -119,20 +134,6 @@ double quality_area(Mesh *msh, int iTri);
 double quality_rho(Mesh *msh, int iTri);
 
 /* a provided simple hash table data structure */
-
-typedef struct mesh_hash_table
-{
-  int  SizHead;   /* Maxmimum entries, the key is in [0,SizHead-1]*/
-  int  NbrObj;    /* Number of object in the hash tables */
-  int  NbrMaxObj; /* Maximum of object that can be store in the hash tab */ 
-  int  *Head ;    /* Head[key%(SizHead)] = link to the first object having this key  in the LstObj list */
-  int5 *LstObj;   /* List of objects in the Hash Tab */
-  
-  /* LstObj[id][0:1] = ip1-ip2,     the 2 points defining the edge  */
-  /* LstObj[id][2:3] = iTri1,iTri2, the two neighboring triangles having ip1-ip2 as points */
-  /* LstObj[id][4]   = idnxt,       the link to the next element in collision, if = 0 last element of the list */
-  
-} HashTable;
 
 /* Implementing the following function should be necessary */
 HashTable * hash_init(int SizHead, int NbrMaxObj);          /* alloc and set htable ==> allocate Head, LstObj */

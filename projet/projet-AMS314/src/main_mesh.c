@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   ti =  GetWallClock();
   printf("  time hash tab neigh.  %lg (s) \n",ti-to);
   
-  printf("  nb d'arêtes : %d \n",msh_neighbors(msh));
+  printf("  nb d'arêtes : %d \n",nb_aretes);
   printf("  nb d'arêtes frontières : %d \n",nb_edges_boundary(msh));
 
   /* write reordered mesh */
