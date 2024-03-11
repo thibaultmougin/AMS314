@@ -388,7 +388,7 @@ int localiser(Mesh *msh, Vertex P){
     b1 = area(P, P2, P3);
     b2 = area(P1, P, P3);
     b3 = area(P1, P2, P);
-    printf("%d : %f, %f, %f \n",iTri,b1,b2,b3);
+    //printf("%d : %f, %f, %f \n",iTri,b1,b2,b3);
     if((b1>0)&&(b2>0)&&(b3>0)){
       return iTri;
     }
