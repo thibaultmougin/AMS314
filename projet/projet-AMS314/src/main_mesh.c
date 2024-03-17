@@ -38,14 +38,17 @@ int main(int argc, char *argv[])
   printf("  time hash tab neigh.  %lg (s) \n",ti-to);
 
   Vertex P;
-  P.Crd[0]=0.1;
-  P.Crd[1]=0.1;
+  P.Crd[0]=0.5;
+  P.Crd[1]=0.5;
 
   printf("  nb d'arêtes : %d \n",nb_aretes);
   printf("  nb d'arêtes frontières : %d \n",nb_edges_boundary(msh));
   fflush(stdout);
-  printf("  test local : %d \n", localiser(msh,P));
+  printf("  test localisation : %d \n", localiser(msh,P));
+  
+  fflush(stdout);
 
+  printf("  nb collisions : %d \n", nb_collisions(msh->Hsh));
 
 
   /* write reordered mesh */

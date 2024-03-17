@@ -480,7 +480,7 @@ int msh_neighbors(Mesh *msh)
   
   if ( ! msh ) return 0;
 
-  HashTable* hsh_tab = hash_init(2*msh->NbrVer,3*msh->NbrTri);
+  HashTable* hsh_tab = hash_init(msh->NbrVer*msh->NbrVer,msh->NbrTri*msh->NbrTri);
 
   for (iTri=1; iTri<=msh->NbrTri; iTri++) {
     for (iEdg=0; iEdg<3; iEdg++) {
@@ -504,11 +504,11 @@ int msh_neighbors(Mesh *msh)
       }
     }
   }
-/*
+
   for (int i =0;i<hsh_tab->NbrObj;i++){
     printf("%d, %d, %d, %d, %d \n", hsh_tab->LstObj[i][0],hsh_tab->LstObj[i][1],hsh_tab->LstObj[i][2],hsh_tab->LstObj[i][3],hsh_tab->LstObj[i][4]);
     fflush(stdout);
-  }*/
+  }
 
   msh->Hsh=hsh_tab;
   
@@ -530,7 +530,11 @@ int nb_edges_boundary(Mesh *msh)
 
 }   
 
-
+int hash_fct(int ip1,int ip2){
+  //return ip1*ip2;
+  //return ip1+ip2;
+  return ip1 >ip2? ip2 : ip1;
+}
 
 
 HashTable * hash_init(int SizHead, int NbrMaxObj)
@@ -550,7 +554,7 @@ HashTable * hash_init(int SizHead, int NbrMaxObj)
 int hash_find(HashTable *hsh, int ip1, int ip2)
 {
   
-  int current = hsh->Head[(ip1+ip2)%(hsh->SizHead)];
+  int current = hsh->Head[hash_fct(ip1,ip2)%(hsh->SizHead)];
 
   while(1){
     
@@ -575,10 +579,10 @@ int hash_add(HashTable *hsh, int ip1, int ip2, int iTri)
 
   hsh->NbrObj++;
 
-  int current = hsh->Head[(ip1+ip2)%(hsh->SizHead)];
+  int current = hsh->Head[hash_fct(ip1,ip2)%(hsh->SizHead)];
   
   if(current==0){
-    hsh->Head[(ip1+ip2)%(hsh->SizHead)]=iObj;
+    hsh->Head[hash_fct(ip1,ip2)%(hsh->SizHead)]=iObj;
     hsh->LstObj[iObj][0]=ip1;
     hsh->LstObj[iObj][1]=ip2;
     hsh->LstObj[iObj][2]=iTri;
@@ -611,7 +615,16 @@ int hash_add(HashTable *hsh, int ip1, int ip2, int iTri)
 }
 
 
-
+int nb_collisions(HashTable* hsh){
+  int n =0;
+  for (int i=0;i<hsh->NbrObj;i++){
+    if (hsh->LstObj[i][4]!=0){
+      n++;
+    }
+  }
+  
+  return n;
+}
 
 int msh_write2dfield_Vertices(char *file, int nfield, double *field) 
 {

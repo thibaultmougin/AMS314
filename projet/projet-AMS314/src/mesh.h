@@ -137,12 +137,15 @@ double quality_rho(Mesh *msh, int iTri);
 
 /* Implementing the following function should be necessary */
 HashTable * hash_init(int SizHead, int NbrMaxObj);          /* alloc and set htable ==> allocate Head, LstObj */
-
+int hash_fct(int ip1,int ip2);
 int hash_find(HashTable *hsh, int ip1, int ip2);            /* return the id found (in LstObj ), if 0 the object is not in the list */
 int hash_add (HashTable *hsh, int ip1, int ip2, int iTri);  /* ==> add this entry in the hash tab */
 
 int localiser(Mesh *msh,Vertex P);
 double area(Vertex P1, Vertex P2, Vertex P3);
+
+int nb_collisions(HashTable* hsh);
+
 
 
 /* Fonction used for adaptation */
