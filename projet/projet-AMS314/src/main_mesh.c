@@ -38,13 +38,13 @@ int main(int argc, char *argv[])
   printf("  time hash tab neigh.  %lg (s) \n",ti-to);
 
   Vertex P;
-  P.Crd[0]=0.8;
-  P.Crd[1]=0.95;
+  P.Crd[0]=0.1;
+  P.Crd[1]=0.1;
 
   printf("  nb d'arêtes : %d \n",nb_aretes);
   printf("  nb d'arêtes frontières : %d \n",nb_edges_boundary(msh));
   fflush(stdout);
-  //printf("  test local : %d \n", localiser(msh,P));
+  printf("  test local : %d \n", localiser(msh,P));
 
 
 
