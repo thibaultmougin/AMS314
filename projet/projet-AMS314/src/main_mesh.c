@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
   printf("  time to re-order the mesh  %lg (s) \n",ti-to);
   /* create neigbhors Q2 version */
   to =  GetWallClock();
-  msh_neighborsQ2(msh);
+  //msh_neighborsQ2(msh);
   ti =  GetWallClock();
   printf("  time q2 neigh.        %lg (s) \n",ti-to);
   /* create neigbhors with hash table */
@@ -47,8 +47,9 @@ int main(int argc, char *argv[])
   printf("  test localisation : %d \n", localiser(msh,P));
   
   fflush(stdout);
-
-  printf("  nb collisions : %d \n", nb_collisions(msh->Hsh));
+  int nbr_col= nb_collisions(msh->Hsh);
+  printf("  nb collisions : %d \n", nbr_col);
+  printf("  nb collisions/aretes : %f \n", (double)nbr_col/(double)nb_aretes);
 
 
   /* write reordered mesh */

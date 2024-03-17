@@ -480,7 +480,7 @@ int msh_neighbors(Mesh *msh)
   
   if ( ! msh ) return 0;
 
-  HashTable* hsh_tab = hash_init(msh->NbrVer*msh->NbrVer,msh->NbrTri*msh->NbrTri);
+  HashTable* hsh_tab = hash_init(2*msh->NbrVer,3*msh->NbrTri);
 
   for (iTri=1; iTri<=msh->NbrTri; iTri++) {
     for (iEdg=0; iEdg<3; iEdg++) {
@@ -504,11 +504,11 @@ int msh_neighbors(Mesh *msh)
       }
     }
   }
-
+/*
   for (int i =0;i<hsh_tab->NbrObj;i++){
     printf("%d, %d, %d, %d, %d \n", hsh_tab->LstObj[i][0],hsh_tab->LstObj[i][1],hsh_tab->LstObj[i][2],hsh_tab->LstObj[i][3],hsh_tab->LstObj[i][4]);
     fflush(stdout);
-  }
+  }*/
 
   msh->Hsh=hsh_tab;
   
@@ -532,8 +532,9 @@ int nb_edges_boundary(Mesh *msh)
 
 int hash_fct(int ip1,int ip2){
   //return ip1*ip2;
-  //return ip1+ip2;
-  return ip1 >ip2? ip2 : ip1;
+  return ip1+ip2;
+  //return ip1 >ip2? ip2 : ip1;
+  //return ip1-ip2 > 0? ip1-ip2 : ip2-ip1;
 }
 
 
