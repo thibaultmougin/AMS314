@@ -1,8 +1,8 @@
 #include <mesh.h>
-
+#include <stdlib.h>
+#include <time.h>
 
 int tri2edg[3][2] = {{1,2},{2,0},{0,1}};
-
 
 Mesh * msh_init()
 {
@@ -67,6 +67,9 @@ Mesh * msh_read(char *file, int readEfr)
   
   msh->NbrVer = GmfStatKwd(fmsh, GmfVertices);
   msh->NbrTri = GmfStatKwd(fmsh, GmfTriangles);
+
+  msh->NbrVerMax = msh->NbrVer;
+  msh->NbrTriMax = msh->NbrTri;
   
   //--- allocate arrays 
   msh->Ver = calloc( (msh->NbrVer+1), sizeof(Vertex)   );
@@ -392,8 +395,13 @@ int localiser(Mesh *msh, Vertex P){
     if((b1>0)&&(b2>0)&&(b3>0)){
       return iTri;
     }
+    srand( time( NULL ) );
 
-    if(b1<0){
+    int rand_b1_b2 = (b1<0) && (b2<0) ?  rand()%2 : 0;
+    int rand_b2_b3 = (b2<0) && (b3<0) ?  rand()%2 : 0;
+    int rand_b1_b3 = (b1<0) && (b3<0) ?  rand()%2 : 0;
+
+    if((b1<0)||(rand_b1_b2)||(rand_b1_b3)){
 
       int hsh_index = hash_find(msh->Hsh,msh->Tri[iTri].Ver[1],msh->Tri[iTri].Ver[2]);
 
@@ -405,7 +413,7 @@ int localiser(Mesh *msh, Vertex P){
       }
 
     }
-    else if (b2<0){
+    else if ((b2<0)||(rand_b1_b2)||(rand_b2_b3)){
       
       int hsh_index = hash_find(msh->Hsh,msh->Tri[iTri].Ver[0],msh->Tri[iTri].Ver[2]);
 
@@ -417,7 +425,7 @@ int localiser(Mesh *msh, Vertex P){
       }
 
     }
-    else if (b3<0){
+    else if ((b3<0)||(rand_b1_b3)||(rand_b2_b3)){
       
       int hsh_index = hash_find(msh->Hsh,msh->Tri[iTri].Ver[0],msh->Tri[iTri].Ver[1]);
 
@@ -472,6 +480,140 @@ int msh_neighborsQ2(Mesh *msh)
   return 1;
 }   
 
+int insert_simple(Mesh *msh,Vertex P){
+  int TriP = localiser(msh,P);
+  msh->NbrVer++;
+  if(msh->NbrVer>msh->NbrVerMax){
+    msh->Ver = realloc( msh->Ver, (2*msh->NbrVerMax+1)* sizeof(Vertex));
+    msh->NbrVerMax *=2;
+  }
+  msh->Ver[msh->NbrVer] = P;
+  msh->NbrTri += 3;
+  if(msh->NbrTri>msh->NbrTriMax){
+    msh->Tri = realloc( msh->Tri, (2*msh->NbrTriMax+1)* sizeof(Triangle));
+    msh->NbrTriMax *=2;
+  }
+  //Copies du triangle contenant P
+  Triangle Tri0=msh->Tri[TriP];
+  Triangle Tri1=msh->Tri[TriP];
+  Triangle Tri2=msh->Tri[TriP];
+
+//On remplace par le pt P dans les nouveaux triangles
+  Tri0.Ver[0] = msh->NbrVer;
+  Tri1.Ver[1] = msh->NbrVer;
+  Tri2.Ver[2] = msh->NbrVer;
+
+//Indices des nouveaux triangles dans msh->Tri
+  int iTri0=msh->NbrTri-2;
+  int iTri1=msh->NbrTri-1;
+  int iTri2=msh->NbrTri;
+
+  msh->Tri[iTri0]=Tri0;
+  msh->Tri[iTri1]=Tri1;
+  msh->Tri[iTri2]=Tri2;
+
+  msh->Tri[TriP].Ver[0] *= -1;
+  msh->Tri[TriP].Ver[1] *= -1;
+  msh->Tri[TriP].Ver[2] *= -1;
+
+  //supprimer les arêtes internes 
+  
+  for (int iTri=iTri0; iTri<=iTri2; iTri++) {
+    for (int iEdg=0; iEdg<3; iEdg++) {
+      int ip1 = msh->Tri[iTri].Ver[tri2edg[iEdg][0]];
+      int ip2 = msh->Tri[iTri].Ver[tri2edg[iEdg][1]];
+      int found = hash_find(msh->Hsh, ip1,ip2);
+
+      if (found!=0){
+        msh->Hsh->LstObj[found][0]=0;
+        msh->Hsh->LstObj[found][1]=0;
+      }
+
+    }
+    }
+  // reset triangles internes des aretes de bord 
+  // voisins pour les nouveaux triagnles 
+  // récuperer les voisins : mettre a jour voisins triagnels internes et de bord 
+  
+  for (int iTri=iTri0; iTri<=iTri2; iTri++) {
+    for (int iEdg=0; iEdg<3; iEdg++) {
+      int ip1 = msh->Tri[iTri].Ver[tri2edg[iEdg][0]];
+      int ip2 = msh->Tri[iTri].Ver[tri2edg[iEdg][1]];
+
+      int found = hash_find(msh->Hsh, ip1,ip2);
+
+      if (found==0){
+
+        hash_add(msh->Hsh,ip1,ip2,iTri);
+      }
+      else{
+
+        int hTri1 = msh->Hsh->LstObj[found][2];
+        msh->Hsh->LstObj[found][3]=iTri;
+        int hTri2 = msh->Hsh->LstObj[found][3];
+
+      }
+    }
+  }
+  
+  for (int k= 0 ; k<=2;k++) {
+    int iTri = msh->Tri[TriP].Voi[k];
+    printf("%d\n",iTri);
+    for (int iEdg=0; iEdg<3; iEdg++) {
+      if (iTri==0)
+        break;
+      
+      int ip1 = msh->Tri[iTri].Ver[tri2edg[iEdg][0]];
+      int ip2 = msh->Tri[iTri].Ver[tri2edg[iEdg][1]];
+      
+
+      int found = hash_find(msh->Hsh, ip1,ip2);
+
+
+
+      int hTri1 = msh->Hsh->LstObj[found][2];
+      msh->Hsh->LstObj[found][3]=iTri;
+      int hTri2 = msh->Hsh->LstObj[found][3];
+
+      msh->Tri[hTri1].Voi[iEdg]=hTri2;
+      
+      msh->Tri[hTri2].Voi[iEdg]=hTri1;
+      
+    }
+  }
+  
+
+  for (int j=msh->Hsh->NbrObj-6;j<=msh->Hsh->NbrObj;j++){
+    int ip1 =  msh->Hsh->LstObj[j][0];
+    int ip2 =  msh->Hsh->LstObj[j][1];
+
+    int iTri1 = msh->Hsh->LstObj[j][2];
+    int iTri2 = msh->Hsh->LstObj[j][3];
+
+    int iEdg1, iEdg2;
+    for (int k=0;k<=2;k++){
+      if ((msh->Tri[iTri1].Ver[k]!=ip1)&&(msh->Tri[iTri1].Ver[k]!=ip2)){
+        iEdg1 = k;
+      }
+      if ((msh->Tri[iTri2].Ver[k]!=ip1)&&(msh->Tri[iTri2].Ver[k]!=ip2)){
+        iEdg2 = k;
+      }
+    }
+
+    msh->Tri[iTri1].Voi[iEdg1] = iTri2;
+    msh->Tri[iTri2].Voi[iEdg2] = iTri1;
+
+
+  }
+
+  for (int i =0;i<msh->Hsh->NbrObj;i++){
+    printf("%d, %d, %d, %d, %d \n", msh->Hsh->LstObj[i][0],msh->Hsh->LstObj[i][1],msh->Hsh->LstObj[i][2],msh->Hsh->LstObj[i][3],msh->Hsh->LstObj[i][4]);
+    fflush(stdout);
+  }
+
+
+  return 0;
+}
 
 
 int msh_neighbors(Mesh *msh)
@@ -509,6 +651,8 @@ int msh_neighbors(Mesh *msh)
     printf("%d, %d, %d, %d, %d \n", hsh_tab->LstObj[i][0],hsh_tab->LstObj[i][1],hsh_tab->LstObj[i][2],hsh_tab->LstObj[i][3],hsh_tab->LstObj[i][4]);
     fflush(stdout);
   }*/
+
+  
 
   msh->Hsh=hsh_tab;
   
@@ -623,7 +767,7 @@ int nb_collisions(HashTable* hsh){
       n++;
     }
   }
-  
+  //tm
   return n;
 }
 

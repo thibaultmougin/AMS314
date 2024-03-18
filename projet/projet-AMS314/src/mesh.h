@@ -44,7 +44,7 @@ typedef unsigned long long int u64;
     msh_neighborsQ2 : a quadratic setting of the neigbhoring structures 
 
  
-
+tmougin
 */
 
 typedef struct mesh_vertex
@@ -98,7 +98,7 @@ typedef struct mesh_hash_table
 typedef struct t_mesh
 {
   int Dim;
-  int NbrVer, NbrTri, NbrEfr, NbrEdg;
+  int NbrVer, NbrTri, NbrEfr, NbrEdg, NbrVerMax, NbrTriMax;
   
   Vertex      *Ver;   /* list of vertices */
   Triangle    *Tri;   /* list of triangles */
@@ -138,14 +138,17 @@ double quality_rho(Mesh *msh, int iTri);
 /* Implementing the following function should be necessary */
 HashTable * hash_init(int SizHead, int NbrMaxObj);          /* alloc and set htable ==> allocate Head, LstObj */
 int hash_fct(int ip1,int ip2);
-int hash_find(HashTable *hsh, int ip1, int ip2);            /* return the id found (in LstObj ), if 0 the object is not in the list */
+int hash_find(HashTable *hsh, int ip1, int ip2);            /* return the id found (in LstObj ), if 0 the object is not in the list */ 
 int hash_add (HashTable *hsh, int ip1, int ip2, int iTri);  /* ==> add this entry in the hash tab */
+int hash_suppr(HashTable *hsh, int ip1, int ip2);           
+
 
 int localiser(Mesh *msh,Vertex P);
 double area(Vertex P1, Vertex P2, Vertex P3);
 
 int nb_collisions(HashTable* hsh);
 
+int insert_simple(Mesh *msh,Vertex P);//insertion dans un triangle,
 
 
 /* Fonction used for adaptation */

@@ -38,18 +38,32 @@ int main(int argc, char *argv[])
   printf("  time hash tab neigh.  %lg (s) \n",ti-to);
 
   Vertex P;
-  P.Crd[0]=0.5;
-  P.Crd[1]=0.5;
+  P.Crd[0]=0.4;
+  P.Crd[1]=0.4;
 
   printf("  nb d'arêtes : %d \n",nb_aretes);
   printf("  nb d'arêtes frontières : %d \n",nb_edges_boundary(msh));
   fflush(stdout);
-  printf("  test localisation : %d \n", localiser(msh,P));
-  
-  fflush(stdout);
+
   int nbr_col= nb_collisions(msh->Hsh);
   printf("  nb collisions : %d \n", nbr_col);
   printf("  nb collisions/aretes : %f \n", (double)nbr_col/(double)nb_aretes);
+
+  insert_simple(msh,P);
+
+  Vertex P2;
+  P2.Crd[0]=0.05;
+  P2.Crd[1]=0.2;
+
+  printf("  test localisation : %d \n", localiser(msh,P2));
+  
+  fflush(stdout);
+
+  
+  for (int k=0;k<=msh->NbrTri;k++){
+    printf("%d : %d, %d, %d, Voisins : %d, %d, %d \n",k,msh->Tri[k].Ver[0],msh->Tri[k].Ver[1],msh->Tri[k].Ver[2],msh->Tri[k].Voi[0],msh->Tri[k].Voi[1],msh->Tri[k].Voi[2]);
+  }
+
 
 
   /* write reordered mesh */
