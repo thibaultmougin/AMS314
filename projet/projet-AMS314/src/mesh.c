@@ -392,54 +392,34 @@ int localiser(Mesh *msh, Vertex P){
     b2 = area(P1, P, P3);
     b3 = area(P1, P2, P);
     //printf("%d : %f, %f, %f \n",iTri,b1,b2,b3);
+
     if((b1>0)&&(b2>0)&&(b3>0)){
       return iTri;
     }
+
     srand( time( NULL ) );
 
-    int rand_b1_b2 = (b1<0) && (b2<0) ?  rand()%2 : 0;
-    int rand_b2_b3 = (b2<0) && (b3<0) ?  rand()%2 : 0;
-    int rand_b1_b3 = (b1<0) && (b3<0) ?  rand()%2 : 0;
+    int rand_b1_b2 = (b2<0) ?  rand()%2 : 1;
+    int rand_b2_b3 = (b3<0) ?  rand()%2 : 1;
+    int rand_b1_b3 = (b3<0) ?  rand()%2 : 1;
 
-    if((b1<0)||(rand_b1_b2)||(rand_b1_b3)){
+    if((b1<0)&&rand_b1_b2&&rand_b1_b3){
 
-      int hsh_index = hash_find(msh->Hsh,msh->Tri[iTri].Ver[1],msh->Tri[iTri].Ver[2]);
-
-      if (msh->Hsh->LstObj[hsh_index][2]==iTri){
-        iTri = msh->Hsh->LstObj[hsh_index][3];
-      }
-      else{
-        iTri = msh->Hsh->LstObj[hsh_index][2];
-      }
+      iTri = msh->Tri[iTri].Voi[0];
 
     }
-    else if ((b2<0)||(rand_b1_b2)||(rand_b2_b3)){
+    else if ((b2<0)&&rand_b2_b3){
       
-      int hsh_index = hash_find(msh->Hsh,msh->Tri[iTri].Ver[0],msh->Tri[iTri].Ver[2]);
+      iTri = msh->Tri[iTri].Voi[1];
 
-      if (msh->Hsh->LstObj[hsh_index][2]==iTri){
-        iTri = msh->Hsh->LstObj[hsh_index][3];
-      }
-      else{
-        iTri = msh->Hsh->LstObj[hsh_index][2];
-      }
 
     }
-    else if ((b3<0)||(rand_b1_b3)||(rand_b2_b3)){
+    else if (b3<0){
       
-      int hsh_index = hash_find(msh->Hsh,msh->Tri[iTri].Ver[0],msh->Tri[iTri].Ver[1]);
-
-      if (msh->Hsh->LstObj[hsh_index][2]==iTri){
-        iTri = msh->Hsh->LstObj[hsh_index][3];
-      }
-      else{
-        iTri = msh->Hsh->LstObj[hsh_index][2];
-      }
-
-    }
+      iTri = msh->Tri[iTri].Voi[2];
 
   }
-
+  }
   return 0;
 
 }
@@ -515,102 +495,37 @@ int insert_simple(Mesh *msh,Vertex P){
   msh->Tri[TriP].Ver[0] *= -1;
   msh->Tri[TriP].Ver[1] *= -1;
   msh->Tri[TriP].Ver[2] *= -1;
-
-  //supprimer les arêtes internes 
   
-  for (int iTri=iTri0; iTri<=iTri2; iTri++) {
-    for (int iEdg=0; iEdg<3; iEdg++) {
-      int ip1 = msh->Tri[iTri].Ver[tri2edg[iEdg][0]];
-      int ip2 = msh->Tri[iTri].Ver[tri2edg[iEdg][1]];
-      int found = hash_find(msh->Hsh, ip1,ip2);
+  msh->Tri[iTri0].Voi[1] = iTri1;
+  msh->Tri[iTri0].Voi[2] = iTri2;
 
-      if (found!=0){
-        msh->Hsh->LstObj[found][0]=0;
-        msh->Hsh->LstObj[found][1]=0;
-      }
+  msh->Tri[iTri1].Voi[0] = iTri0;
+  msh->Tri[iTri1].Voi[2] = iTri2;
 
-    }
-    }
-  // reset triangles internes des aretes de bord 
-  // voisins pour les nouveaux triagnles 
-  // récuperer les voisins : mettre a jour voisins triagnels internes et de bord 
-  
-  for (int iTri=iTri0; iTri<=iTri2; iTri++) {
-    for (int iEdg=0; iEdg<3; iEdg++) {
-      int ip1 = msh->Tri[iTri].Ver[tri2edg[iEdg][0]];
-      int ip2 = msh->Tri[iTri].Ver[tri2edg[iEdg][1]];
+  msh->Tri[iTri2].Voi[0] = iTri0;
+  msh->Tri[iTri2].Voi[1] = iTri1;
 
-      int found = hash_find(msh->Hsh, ip1,ip2);
+  for (int k =0;k<3;k++){
 
-      if (found==0){
-
-        hash_add(msh->Hsh,ip1,ip2,iTri);
-      }
-      else{
-
-        int hTri1 = msh->Hsh->LstObj[found][2];
-        msh->Hsh->LstObj[found][3]=iTri;
-        int hTri2 = msh->Hsh->LstObj[found][3];
-
-      }
-    }
-  }
-  
-  for (int k= 0 ; k<=2;k++) {
     int iTri = msh->Tri[TriP].Voi[k];
-    printf("%d\n",iTri);
     for (int iEdg=0; iEdg<3; iEdg++) {
-      if (iTri==0)
-        break;
-      
+
       int ip1 = msh->Tri[iTri].Ver[tri2edg[iEdg][0]];
       int ip2 = msh->Tri[iTri].Ver[tri2edg[iEdg][1]];
-      
-
-      int found = hash_find(msh->Hsh, ip1,ip2);
-
-
-
-      int hTri1 = msh->Hsh->LstObj[found][2];
-      msh->Hsh->LstObj[found][3]=iTri;
-      int hTri2 = msh->Hsh->LstObj[found][3];
-
-      msh->Tri[hTri1].Voi[iEdg]=hTri2;
-      
-      msh->Tri[hTri2].Voi[iEdg]=hTri1;
-      
-    }
-  }
-  
-
-  for (int j=msh->Hsh->NbrObj-6;j<=msh->Hsh->NbrObj;j++){
-    int ip1 =  msh->Hsh->LstObj[j][0];
-    int ip2 =  msh->Hsh->LstObj[j][1];
-
-    int iTri1 = msh->Hsh->LstObj[j][2];
-    int iTri2 = msh->Hsh->LstObj[j][3];
-
-    int iEdg1, iEdg2;
-    for (int k=0;k<=2;k++){
-      if ((msh->Tri[iTri1].Ver[k]!=ip1)&&(msh->Tri[iTri1].Ver[k]!=ip2)){
-        iEdg1 = k;
+      if (((ip1==msh->Tri[iTri0].Ver[1])&&(ip2==msh->Tri[iTri0].Ver[2]))||((ip2==msh->Tri[iTri0].Ver[1])&&(ip1==msh->Tri[iTri0].Ver[2])))
+      {
+        msh->Tri[iTri].Voi[iEdg]=iTri0;
       }
-      if ((msh->Tri[iTri2].Ver[k]!=ip1)&&(msh->Tri[iTri2].Ver[k]!=ip2)){
-        iEdg2 = k;
+      else if (((ip1==msh->Tri[iTri1].Ver[0])&&(ip2==msh->Tri[iTri1].Ver[2]))||((ip2==msh->Tri[iTri1].Ver[0])&&(ip1==msh->Tri[iTri1].Ver[2])))
+      {
+        msh->Tri[iTri].Voi[iEdg]=iTri1;
       }
-    }
-
-    msh->Tri[iTri1].Voi[iEdg1] = iTri2;
-    msh->Tri[iTri2].Voi[iEdg2] = iTri1;
-
-
+      else if (((ip1==msh->Tri[iTri2].Ver[0])&&(ip2==msh->Tri[iTri2].Ver[1]))||((ip2==msh->Tri[iTri2].Ver[0])&&(ip1==msh->Tri[iTri2].Ver[1])))
+      {
+        msh->Tri[iTri].Voi[iEdg]=iTri2;
+      }
   }
-
-  for (int i =0;i<msh->Hsh->NbrObj;i++){
-    printf("%d, %d, %d, %d, %d \n", msh->Hsh->LstObj[i][0],msh->Hsh->LstObj[i][1],msh->Hsh->LstObj[i][2],msh->Hsh->LstObj[i][3],msh->Hsh->LstObj[i][4]);
-    fflush(stdout);
   }
-
 
   return 0;
 }
@@ -637,16 +552,49 @@ int msh_neighbors(Mesh *msh)
       }
       else{
 
-        int Tri1 = hsh_tab->LstObj[found][2];
+        //int Tri1 = hsh_tab->LstObj[found][2];
         hsh_tab->LstObj[found][3]=iTri;
-        int Tri2 = hsh_tab->LstObj[found][3];
+        //int Tri2 = hsh_tab->LstObj[found][3];
 
-        msh->Tri[Tri1].Voi[iEdg]=Tri2;
-        msh->Tri[Tri2].Voi[iEdg]=Tri1;
+        //msh->Tri[Tri1].Voi[iEdg]=Tri2;
+        //msh->Tri[Tri2].Voi[iEdg]=Tri1;
       }
     }
   }
-/*
+
+for (iTri=1; iTri<=msh->NbrTri; iTri++) {
+    for (iEdg=0; iEdg<3; iEdg++) {
+      ip1 = msh->Tri[iTri].Ver[tri2edg[iEdg][0]];
+      ip2 = msh->Tri[iTri].Ver[tri2edg[iEdg][1]];
+      found = hash_find(hsh_tab, ip1,ip2);
+
+      if (found ==0){
+
+        printf("erreur found");
+
+      }
+
+      else{
+
+        
+        int Tri1 = hsh_tab->LstObj[found][2];
+        int Tri2 = hsh_tab->LstObj[found][3];
+
+        if (Tri1==iTri){
+          msh->Tri[Tri1].Voi[iEdg]=Tri2;
+        }
+
+        else if (Tri2==iTri){
+          msh->Tri[Tri2].Voi[iEdg]=Tri1;
+
+        }
+        else{printf("erreur tri1 tri2");}
+
+
+      }
+
+    }
+  }/*
   for (int i =0;i<hsh_tab->NbrObj;i++){
     printf("%d, %d, %d, %d, %d \n", hsh_tab->LstObj[i][0],hsh_tab->LstObj[i][1],hsh_tab->LstObj[i][2],hsh_tab->LstObj[i][3],hsh_tab->LstObj[i][4]);
     fflush(stdout);

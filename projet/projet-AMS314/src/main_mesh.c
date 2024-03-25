@@ -52,12 +52,18 @@ int main(int argc, char *argv[])
   insert_simple(msh,P);
 
   Vertex P2;
-  P2.Crd[0]=0.05;
-  P2.Crd[1]=0.2;
 
-  printf("  test localisation : %d \n", localiser(msh,P2));
-  
-  fflush(stdout);
+  P2.Crd[0]=0.6;
+  P2.Crd[1]=0.4;
+
+
+  insert_simple(msh,P2);
+
+
+  P2.Crd[0]=0.7;
+  P2.Crd[1]=0.7;
+
+  insert_simple(msh,P2);
 
   
   for (int k=0;k<=msh->NbrTri;k++){
