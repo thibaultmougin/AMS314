@@ -46,29 +46,27 @@ int main(int argc, char *argv[])
   fflush(stdout);
 
   int nbr_col= nb_collisions(msh->Hsh);
+  printf("OK");
+  fflush(stdout);
+
   printf("  nb collisions : %d \n", nbr_col);
   printf("  nb collisions/aretes : %f \n", (double)nbr_col/(double)nb_aretes);
-
+  
   insert_simple(msh,P);
 
-  Vertex P2;
-
-  P2.Crd[0]=0.6;
-  P2.Crd[1]=0.4;
-
-
-  insert_simple(msh,P2);
-
-
-  P2.Crd[0]=0.7;
-  P2.Crd[1]=0.7;
-
-  insert_simple(msh,P2);
-
+  P.Crd[0]=0.45;
+  P.Crd[1]=0.2;
   
+  printf("  %d \n \n", incirc(msh,8,P));
+  Node* cavi = cavity(msh,P);
+
+  delaunay(msh,P);
+
   for (int k=0;k<=msh->NbrTri;k++){
     printf("%d : %d, %d, %d, Voisins : %d, %d, %d \n",k,msh->Tri[k].Ver[0],msh->Tri[k].Ver[1],msh->Tri[k].Ver[2],msh->Tri[k].Voi[0],msh->Tri[k].Voi[1],msh->Tri[k].Voi[2]);
   }
+
+
 
 
 

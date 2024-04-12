@@ -119,7 +119,17 @@ int    msh_write(Mesh *msh, char *file);
 
 double * sol_read(char *file, int mshDim, int mshNbrSol);
 
+typedef struct node
+{
+    int data;
+    struct node *next;
+} Node;
 
+
+int push( Node **stack, int val );
+int pop( Node **stack, int *val );
+
+int val_in_pile(Node** pp_stack, int val);
 
 /* functions to be implemented  */
 int    msh_boundingbox(Mesh *msh);         /* compute the bouding box of the mesh                         */
@@ -149,6 +159,13 @@ double area(Vertex P1, Vertex P2, Vertex P3);
 int nb_collisions(HashTable* hsh);
 
 int insert_simple(Mesh *msh,Vertex P);//insertion dans un triangle,
+
+
+int incirc(Mesh *msh,int iTri, Vertex P);
+Node* cavity(Mesh *msh, Vertex P);
+void delaunay(Mesh *msh, Vertex P);
+
+int have_common_edg(Mesh *msh, int iTri, int jTriVoi);
 
 
 /* Fonction used for adaptation */
