@@ -419,7 +419,7 @@ int msh_write(Mesh *msh, char *file)
 
 int localiser(Mesh *msh, Vertex P)
 {
-  int iTri = 1;
+  int iTri = msh->NbrTri;
   double b1, b2, b3;
   Vertex P1, P2, P3;
 
@@ -747,7 +747,6 @@ int have_common_edg(Mesh *msh, int iTri, int jTriVoi){
 void delaunay(Mesh *msh, Vertex P)
 {
   Node *cavi = cavity(msh, P);
-  Node *bord = (NULL);
   Node *ref_cavi = cavity(msh, P);
   Node *new_cavi = (NULL);
 
@@ -859,7 +858,7 @@ void delaunay(Mesh *msh, Vertex P)
     cavi = cavi->next;
   }
   
-  printf("   new trinalges : %d  \n", new_triangles_nb);
+  //printf("   new trinalges : %d  \n", new_triangles_nb);
   while (new_cavi != NULL){
       int iTri = new_cavi->data;
 
@@ -934,7 +933,7 @@ int msh_neighbors(Mesh *msh)
       if (found == 0)
       {
 
-        printf("erreur found %d %d \n", ip1, ip2);
+        printf("     erreur found %d %d \n", ip1, ip2);
       }
 
       else

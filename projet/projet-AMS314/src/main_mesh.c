@@ -1,7 +1,10 @@
 #include <mesh.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 int main(int argc, char *argv[])
 { 
+  
   double to,ti;
   
   if ( argc < 2 ) {
@@ -9,7 +12,7 @@ int main(int argc, char *argv[])
     return 0;
   }
   
-  /* read a mesh */
+  // read a mesh 
   to =  GetWallClock();
   Mesh * msh = msh_read(argv[1], 0);
   ti =  GetWallClock();
@@ -20,54 +23,65 @@ int main(int argc, char *argv[])
   printf("  Triangles  %10d \n", msh->NbrTri);
   printf("  time to read the mesh %lg (s) \n",ti-to);
   
-  /* re-order a mesh */ 
+  // re-order a mesh
   to =  GetWallClock();
   msh_reorder(msh);
   ti =  GetWallClock();  
   printf("  time to re-order the mesh  %lg (s) \n",ti-to);
-  /* create neigbhors Q2 version */
+  // create neigbhors Q2 version 
   to =  GetWallClock();
   //msh_neighborsQ2(msh);
   ti =  GetWallClock();
   printf("  time q2 neigh.        %lg (s) \n",ti-to);
-  /* create neigbhors with hash table */
+  // create neigbhors with hash table 
   to =  GetWallClock();
 
   int nb_aretes = msh_neighbors(msh);
   ti =  GetWallClock();
   printf("  time hash tab neigh.  %lg (s) \n",ti-to);
 
-  Vertex P;
-  P.Crd[0]=0.4;
-  P.Crd[1]=0.4;
-
   printf("  nb d'arêtes : %d \n",nb_aretes);
   printf("  nb d'arêtes frontières : %d \n",nb_edges_boundary(msh));
   fflush(stdout);
 
   int nbr_col= nb_collisions(msh->Hsh);
-  printf("OK");
-  fflush(stdout);
 
   printf("  nb collisions : %d \n", nbr_col);
   printf("  nb collisions/aretes : %f \n", (double)nbr_col/(double)nb_aretes);
-  
-  insert_simple(msh,P);
 
-  P.Crd[0]=0.45;
-  P.Crd[1]=0.2;
   
-  printf("  %d \n \n", incirc(msh,8,P));
-  Node* cavi = cavity(msh,P);
 
-  delaunay(msh,P);
+  srand(7);
+  
+  int nbr_random_ver = 10;
+
+  Vertex* random_ver = malloc(nbr_random_ver*sizeof(Vertex));
+
+  for (int k=0;k<nbr_random_ver;k++){
+    Vertex P;
+
+    double x = rand()/(double)RAND_MAX;
+    double y = rand()/(double)RAND_MAX;
+
+    P.Crd[0]=x;
+    P.Crd[1]=y;
+
+    random_ver[k] = P;
+   }
+  
+  for (int k=0;k<nbr_random_ver;k++){
+
+    Vertex Pp = random_ver[k];
+    printf("    %d : %f, %f  \n", k, Pp.Crd[0],Pp.Crd[1]);
+
+    delaunay(msh,Pp);
+
+   }
+  
 
   for (int k=0;k<=msh->NbrTri;k++){
     printf("%d : %d, %d, %d, Voisins : %d, %d, %d \n",k,msh->Tri[k].Ver[0],msh->Tri[k].Ver[1],msh->Tri[k].Ver[2],msh->Tri[k].Voi[0],msh->Tri[k].Voi[1],msh->Tri[k].Voi[2]);
   }
-
-
-
 
 
   /* write reordered mesh */

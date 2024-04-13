@@ -164,7 +164,7 @@ int insert_simple(Mesh *msh,Vertex P);//insertion dans un triangle,
 int incirc(Mesh *msh,int iTri, Vertex P);
 Node* cavity(Mesh *msh, Vertex P);
 void delaunay(Mesh *msh, Vertex P);
-
+void print_pile(Node **pp_stack);
 int have_common_edg(Mesh *msh, int iTri, int jTriVoi);
 
 
