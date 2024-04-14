@@ -196,7 +196,7 @@ double *sol_read(char *file, int mshDim, int mshNbrSol)
   }
   if (nbrSol != mshNbrSol)
   {
-    printf("  ## WARNING: WRONG SOLUTION NUMBER. IGNORED\n");
+    printf("  ## WARNING: WRONG SOLUTION NUMBER : %d vs %d, IGNORED\n",nbrSol,mshNbrSol);
     return NULL;
   }
   if (NbrTyp != 1)
@@ -420,6 +420,7 @@ int msh_write(Mesh *msh, char *file)
 int localiser(Mesh *msh, Vertex P)
 {
   int iTri = msh->NbrTri;
+  //printf("%d", iTri);
   double b1, b2, b3;
   Vertex P1, P2, P3;
 
@@ -674,7 +675,7 @@ Node *cavity(Mesh *msh, Vertex P)
 
     if (i == msh->NbrTri - 1)
     {
-      printf("erreur pile infinie");
+      printf("  erreur pile infinie  \n");
     }
 
     if (n == 0)

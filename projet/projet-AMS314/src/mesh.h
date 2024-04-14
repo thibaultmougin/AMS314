@@ -158,7 +158,7 @@ double area(Vertex P1, Vertex P2, Vertex P3);
 
 int nb_collisions(HashTable* hsh);
 
-int insert_simple(Mesh *msh,Vertex P);//insertion dans un triangle,
+int insert_simple(Mesh *msh,Vertex P);//insertion dans un triangle
 
 
 int incirc(Mesh *msh,int iTri, Vertex P);
